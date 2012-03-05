@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = CassandraIntegration::VERSION
   s.authors     = ["Marcelo Murad"]
   s.email       = ["marcelo.murad@dtmconsultoria.com"]
-  s.homepage    = "http://dtmconsultoria.com"
+  s.homepage    = "https://github.com/dtmconsultoria/cassandra-Integration"
   s.summary     = %q{Permits integrate models from diferent apps using Cassandra for sync}
   s.description = %q{Permits integrate models from diferent apps using Cassandra for sync}
 
