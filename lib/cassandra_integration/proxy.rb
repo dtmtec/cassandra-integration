@@ -11,7 +11,8 @@ class CassandraIntegration::Proxy
   def sync
     values = { 'name'        => @instance.name,
               'mother_name' => @instance.mother,
-              'birth_date'  => @instance.birthdate.to_s }
+              'birth_date'  => @instance.birthdate.to_s,
+              CassandraIntegration::Config.app_id => CassandraIntegration::Config.app_id  }
     
     @cassandra.insert(@instance.class.cassandra_column_family, @instance.cassandra_sync_identifier, values) unless record_exists?
   end

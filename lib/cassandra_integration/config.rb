@@ -12,4 +12,9 @@ class CassandraIntegration::Config
   def self.keyspace
     @@config['keyspace']
   end
+
+  def self.app_id
+    @@config['app_id']
+  end
+
 end

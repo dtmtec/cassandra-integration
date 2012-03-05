@@ -26,7 +26,8 @@ describe CassandraIntegration::Proxy do
         :cassandra_sync_identifier => 'cassandra_sync_identifier',
         :name => 'name',
         :mother => 'mother',
-        :birthdate => 'birthdate'
+        :birthdate => 'birthdate',
+        :app_id => 'app_id'
       )
       CassandraIntegration::Proxy.any_instance.stub(:connect)
       CassandraIntegration::Proxy.any_instance.stub(:record_exists?)
@@ -35,7 +36,8 @@ describe CassandraIntegration::Proxy do
       cassandra.should_receive(:insert).with('cassandra_column_family', 'cassandra_sync_identifier', {
         'name' => 'name',
         'mother_name' => 'mother',
-        'birth_date' => 'birthdate'
+        'birth_date' => 'birthdate',
+        'app_id' => 'app_id'
       })
       proxy.instance_variable_set(:@cassandra, cassandra)
       proxy.sync

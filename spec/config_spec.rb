@@ -16,11 +16,13 @@ describe CassandraIntegration::Config do
       file = Tempfile.new('config')
       file.write("host: test.com\n")
       file.write("keyspace: keyspace\n")
+      file.write("app_id: app_id\n")
       file.flush
       
       CassandraIntegration::Config.configure(file.path)
       CassandraIntegration::Config.host.should eq('test.com')
       CassandraIntegration::Config.keyspace.should eq('keyspace')
+      CassandraIntegration::Config.app_id.should eq('app_id')
     end
 
   end
