@@ -2,14 +2,9 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe CassandraIntegration::Proxy do
 
-  it "should connect to Cassandra" do
-    CassandraIntegration::Proxy.any_instance.should_receive(:connect)
-    CassandraIntegration::Proxy.new(mock)
-  end
-
-  describe "#connect" do
+  describe ".connect" do
     it "should set a Cassandra object connection" do
-      CassandraIntegration::Proxy.new(mock).cassandra.should be_an_instance_of Cassandra 
+      CassandraIntegration::Proxy.connect.should be_an_instance_of Cassandra
     end
 
     it "should set instance variable" do

@@ -1,19 +1,28 @@
 require 'cassandra'
 class CassandraIntegration::Proxy
   
-  attr_reader :cassandra, :instance
+  attr_reader :instance
   
   def initialize(instance)
-    connect
     @instance = instance
   end
   
   def sync
-    @cassandra.insert(@instance.class.cassandra_column_family, @instance.cassandra_sync_identifier, cassandra_columns_values_hash) unless record_exists?
+    self.class.connect.insert(@instance.class.cassandra_column_family,
+                      @instance.cassandra_sync_identifier,
+                      cassandra_columns_values_hash.merge(CassandraIntegration::Proxy.set_apps_to_update)) unless record_exists?
+  end
+
+  def self.set_apps_to_update
+    data = Hash.new
+    CassandraIntegration::Config.other_apps_ids.split(',').each do |app|
+      data[app.to_s] = app.to_s
+    end
+    data
   end
   
   def record_exists?
-    !@cassandra.get(@instance.class.cassandra_column_family, @instance.cassandra_sync_identifier).blank?
+    !self.class.connect.get(@instance.class.cassandra_column_family, @instance.cassandra_sync_identifier).blank?
   end
   
   def cassandra_columns_values_hash
@@ -24,8 +33,11 @@ class CassandraIntegration::Proxy
     return data
   end
 
-  def connect
-    @cassandra = Cassandra.new(CassandraIntegration::Config.keyspace, CassandraIntegration::Config.host)
+  def self.connect
+    @@cassandra ||= Cassandra.new(CassandraIntegration::Config.keyspace, CassandraIntegration::Config.host)
   end
   
+  def self.cassandra
+    self.connect
+  end
 end
