@@ -6,6 +6,8 @@ module CassandraIntegration::Base
     base.after_save :replicate
     base.before_validation :set_cassandra_sync_identifier
     
+    CassandraIntegration::Config.extended_models_cfs=base.cassandra_column_family
+
     base.class_eval do
       include InstanceMethods
     end

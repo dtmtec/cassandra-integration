@@ -18,17 +18,31 @@ describe CassandraIntegration::Proxy do
     end
   end
 
+  describe ".cassandra" do
+    it "should return a Cassandra object connection" do
+      CassandraIntegration::Proxy.cassandra.should be_an_instance_of Cassandra
+    end
+  end
+
   describe "#sync" do
 
     it "should sync user to Cassandra" do
-      instance = extended_method_mock
-      CassandraIntegration::Proxy.any_instance.stub(:connect)
-      CassandraIntegration::Proxy.any_instance.stub(:record_exists?)
-      proxy = CassandraIntegration::Proxy.new(instance)
       cassandra = mock(:cassandra)
+      CassandraIntegration::Proxy.stub(:connect => cassandra)
+      CassandraIntegration::Proxy.any_instance.stub(:record_exists? => false)
+      CassandraIntegration::Proxy.stub(:set_apps_to_update => {})
       cassandra.should_receive(:insert).with('cassandra_column_family', 'cassandra_sync_identifier', hash_values_to_cassandra)
-      proxy.instance_variable_set(:@cassandra, cassandra)
-      proxy.sync
+      CassandraIntegration::Proxy.new(extended_method_mock).sync
+    end
+
+  end
+
+  describe ".set_apps_to_update" do
+
+    it "should return a Hash of apps that need to be updated" do
+      CassandraIntegration::Config.stub(:other_apps_ids=>'app1,app2')
+      CassandraIntegration::Proxy.stub(:connect)
+      CassandraIntegration::Proxy.set_apps_to_update.should eq({'app1'=>'app1', 'app2'=>'app2'})
     end
 
   end

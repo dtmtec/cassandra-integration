@@ -3,6 +3,12 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe CassandraIntegration::Config do
 
+  it "should let set any models to extended_models" do
+    CassandraIntegration::Config.extended_models_cfs = 'person'
+    CassandraIntegration::Config.extended_models_cfs = 'person2'
+    CassandraIntegration::Config.extended_models_cfs.should include('person2','person')
+  end
+
   describe ".configure" do
 
     it "should parse yaml file" do
