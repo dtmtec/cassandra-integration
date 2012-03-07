@@ -1,6 +1,6 @@
 module CassandraIntegration::Base
 
-  attr_accessor :cassandra_column_family 
+  attr_accessor :cassandra_column_family, :cassandra_columns_values_hash
 
   def self.extended(base)
     base.after_save :replicate
