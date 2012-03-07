@@ -6,15 +6,15 @@ class CassandraIntegration::Config
   end
   
   def self.host
-    @@config['host']
+    @@config[RAILS_ENV]['host']
   end
   
   def self.keyspace
-    @@config['keyspace']
+    @@config[RAILS_ENV]['keyspace']
   end
 
   def self.app_id
-    @@config['app_id']
+    @@config[RAILS_ENV]['app_id']
   end
 
 end

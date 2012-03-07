@@ -1,3 +1,9 @@
-host: 192.168.0.1:9160
-keyspace: keyspace
-app_id: id_for_this_application
+development:
+    host: 192.168.0.1:9160
+    keyspace: keyspace
+    app_id: id_for_this_application
+
+production:
+    host: 192.168.0.1:9160
+    keyspace: keyspace
+    app_id: id_for_this_application

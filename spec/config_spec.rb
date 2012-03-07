@@ -12,11 +12,18 @@ describe CassandraIntegration::Config do
       CassandraIntegration::Config.configure(mock)
     end
 
-    it "should read the config file" do
+    it "should read the development config file" do
+      RAILS_ENV='development'
       file = Tempfile.new('config')
-      file.write("host: test.com\n")
-      file.write("keyspace: keyspace\n")
-      file.write("app_id: app_id\n")
+      file.write("development:\n")
+      file.write("    host: test.com\n")
+      file.write("    keyspace: keyspace\n")
+      file.write("    app_id: app_id\n")
+      file.write("\n")
+      file.write("production:\n")
+      file.write("    host: test.com\n")
+      file.write("    keyspace: keyspace\n")
+      file.write("    app_id: app_id\n")
       file.flush
       
       CassandraIntegration::Config.configure(file.path)
