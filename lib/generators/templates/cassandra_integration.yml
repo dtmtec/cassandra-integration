@@ -2,8 +2,10 @@ development:
     host: 192.168.0.1:9160
     keyspace: keyspace
     app_id: id_for_this_application
+    other_apps_ids: id_for_other_app1,id_for_other_app2
 
 production:
     host: 192.168.0.1:9160
     keyspace: keyspace
     app_id: id_for_this_application
+    other_apps_ids: id_for_other_app1,id_for_other_app2
