@@ -1,7 +1,7 @@
 require 'yaml'
 class CassandraIntegration::Config
   
-  @@extended_models_cfs = []
+  @@extended_models = []
   
   class << self
 
@@ -25,12 +25,12 @@ class CassandraIntegration::Config
       @@config[RAILS_ENV]['other_apps_ids']
     end
 
-    def extended_models_cfs
-      @@extended_models_cfs
+    def extended_models
+      @@extended_models
     end
 
-    def extended_models_cfs=(value)
-      @@extended_models_cfs << value
+    def extended_models=(value)
+      @@extended_models << value
     end
 
   end
