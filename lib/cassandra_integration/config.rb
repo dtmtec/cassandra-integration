@@ -25,6 +25,18 @@ class CassandraIntegration::Config
       @@config[RAILS_ENV]['other_apps_ids']
     end
 
+    def retries
+      @@config[RAILS_ENV]['retries'] || 3
+    end
+
+    def timeout
+      @@config[RAILS_ENV]['timeout'] || 10
+    end
+
+    def connect_timeout
+      @@config[RAILS_ENV]['connect_timeout'] || 10
+    end
+
     def extended_models
       @@extended_models
     end

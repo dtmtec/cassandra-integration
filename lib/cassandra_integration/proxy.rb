@@ -34,7 +34,11 @@ class CassandraIntegration::Proxy
   end
 
   def self.connect
-    @@cassandra ||= Cassandra.new(CassandraIntegration::Config.keyspace, CassandraIntegration::Config.host)
+    @@cassandra ||= Cassandra.new(CassandraIntegration::Config.keyspace,
+                                  CassandraIntegration::Config.host,
+                                  :retires => CassandraIntegration::Config.retries,
+                                  :timeout => CassandraIntegration::Config.timeout,
+                                  :connect_timeout => CassandraIntegration::Config.connect_timeout)
   end
   
   def self.cassandra
