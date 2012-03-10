@@ -30,6 +30,14 @@ describe CassandraIntegration::Base do
     dummy.valid?
   end
 
+  describe '#coming_from_cassandra?' do
+    it 'should let set coming_from_cassandra' do
+      dummy.coming_from_cassandra?.should be false
+      dummy.coming_from_cassandra = true
+      dummy.coming_from_cassandra?.should be true
+    end
+  end
+
   describe '#replicate' do
 
     it 'should create a Proxy passing extended class object as argument' do

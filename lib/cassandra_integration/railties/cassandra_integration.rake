@@ -1,3 +1,4 @@
+# encoding: utf-8
 namespace :cassandra_integration do
   # desc 'Update cassandra second index'
   # task :update_second_indexes => :environment do
@@ -38,34 +39,37 @@ namespace :cassandra_integration do
       puts "Records to update:  #{records_to_update.length}"
       records_to_update.each do |key,_|
 
-      if model.find_by_cassandra_sync_identifier(key).blank?
-        cassandra_record = proxy.cassandra.get(cf, key)
-        puts "key #{key}"
-        h={}
-        puts "p=#{model.name}.create("
-        model.cassandra_columns_values_hash.each do |cassandra_col, model_col|
-          puts ":#{model_col} => '#{cassandra_record[cassandra_col.to_s]}',"
-          h[model_col]=cassandra_record[cassandra_col.to_s]
+        puts '=================================='
+        puts "cassandra_sync_identifier: #{key}"
+
+        if model.find_by_cassandra_sync_identifier(key).blank?
+          cassandra_record = proxy.cassandra.get(cf, key)
+          obj = model.new
+
+          model.cassandra_columns_values_hash.each do |cassandra_col, model_col|
+            obj[model_col] = cassandra_record[cassandra_col.to_s]
+          end
+          obj[:cassandra_sync_identifier] = key
+          obj.coming_from_cassandra = true
+
+          if obj.save!
+            puts 'Registro criado com sucesso!'
+            proxy.cassandra.remove(cf, key, app_id)
+            puts "Removing #{app_id} from #{key} to CF #{cf}."
+          end
+
+        else
+
+          puts "Chave: já existe no bd."
+          proxy.cassandra.remove(cf, key, app_id)
+          puts "Removing #{app_id} from #{key} to CF #{cf}."
+
         end
-        h[:cassandra_sync_identifier] = key
-        puts ":cassandra_sync_identifier => '#{key}',"
-        h[:cassandra] = true
-        puts ":cassandra => true"
-        puts ")"
-        model.create(h)
-        proxy.cassandra.remove(cf, key, app_id)
-        puts "removendo #{app_id} da chave #{key} da cf #{cf}"
-        puts "================="
-      else
-        proxy.cassandra.remove(cf, key, app_id)
-        puts "removendo #{app_id} da chave #{key} da cf #{cf}"
-        puts "================="
+
       end
-        
-      end
-      
+
     end
-    
+
   end
-  
+
 end

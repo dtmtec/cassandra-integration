@@ -14,17 +14,26 @@ module CassandraIntegration::Base
   end
 
   module InstanceMethods
+
+    attr_accessor :coming_from_cassandra
+
+    def coming_from_cassandra?
+      !self.coming_from_cassandra.blank?
+    end
+
     def replicate
       CassandraIntegration::Proxy.new(self).sync
     end
-    
+
     def set_cassandra_sync_identifier
       raise 'Your model does not have cassandra_sync_identifier column.' unless self.respond_to? :cassandra_sync_identifier
       self.cassandra_sync_identifier = to_cassandra_sync_identifier if self.cassandra_sync_identifier.blank?
     end
-    
+
     def to_cassandra_sync_identifier
       raise 'Method to_cassandra_sync_identifier is not implemented!'
     end
+
   end
+
 end
