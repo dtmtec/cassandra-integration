@@ -49,6 +49,14 @@ describe CassandraIntegration::Proxy do
       CassandraIntegration::Proxy.new(mock).record_exists?
     end
 
+    it "Cassandra get should return true" do
+      CassandraIntegration::Proxy.stub(:connect => stub(:get => true))
+      CassandraIntegration::Proxy.connect.should_receive(:get).and_return(true)
+
+      p = CassandraIntegration::Proxy.new(extended_method_mock)
+      p.record_exists?.should be true
+    end
+
   end
 
   describe "#cassandra_coloumns_values_hash" do
