@@ -53,14 +53,19 @@ namespace :cassandra_integration do
           obj.coming_from_cassandra = true
 
           if obj.save!
-            puts 'Registro criado com sucesso!'
+            puts 'SUCCESS: Record created!'
             proxy.cassandra.remove(cf, key, app_id)
             puts "Removing #{app_id} from #{key} to CF #{cf}."
+          else
+            puts "ERROR: Fail to save record."
+            puts "key: #{key}"
+            puts "model: #{model.name}"
+            puts "CF: #{cf}"
           end
 
         else
 
-          puts "Chave: já existe no bd."
+          puts "WARNING: key already exists on DB."
           proxy.cassandra.remove(cf, key, app_id)
           puts "Removing #{app_id} from #{key} to CF #{cf}."
 
