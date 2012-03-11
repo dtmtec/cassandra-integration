@@ -35,7 +35,7 @@ namespace :cassandra_integration do
       
       proxy = CassandraIntegration::Proxy
       search = [{ :column_name => app_id, :value => app_id, :comparison => '==' }]
-      records_to_update = proxy.cassandra.get_indexed_slices(cf, search)
+      records_to_update = proxy.cassandra.get_indexed_slices(cf, search, :key_count => 250)
       puts "Records to update:  #{records_to_update.length}"
       records_to_update.each do |key,_|
 
