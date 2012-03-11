@@ -14,11 +14,8 @@ class CassandraIntegration::Proxy
   end
 
   def self.set_apps_to_update
-    data = Hash.new
-    CassandraIntegration::Config.other_apps_ids.split(',').each do |app|
-      data[app.to_s] = app.to_s
-    end
-    data
+    apps = CassandraIntegration::Config.other_apps_ids
+    apps.split(',').reduce({}) { |data, app| data.tap { data[app] = app } }
   end
   
   def record_exists?
@@ -26,11 +23,8 @@ class CassandraIntegration::Proxy
   end
   
   def cassandra_columns_values_hash
-    data = Hash.new
-    @instance.class.cassandra_columns_values_hash.each do |key, value|
-      data[key.to_s] = @instance.send(value).to_s
-    end
-    return data
+    values = @instance.class.cassandra_columns_values_hash
+    values.reduce({}) { |data, (key, value)| data.tap { data[key.to_s] = @instance.send(value).to_s } }
   end
 
   def self.connect
