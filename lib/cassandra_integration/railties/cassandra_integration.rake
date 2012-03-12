@@ -52,7 +52,7 @@ namespace :cassandra_integration do
           obj[:cassandra_sync_identifier] = key
           obj.coming_from_cassandra = true
 
-          if obj.save!
+          if obj.save
             puts 'SUCCESS: Record created!'
             proxy.cassandra.remove(cf, key, app_id)
             puts "Removing #{app_id} from #{key} to CF #{cf}."
