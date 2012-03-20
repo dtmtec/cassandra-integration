@@ -47,7 +47,7 @@ namespace :cassandra_integration do
           obj = model.new
 
           model.cassandra_columns_values_hash.each do |cassandra_col, model_col|
-            obj[model_col] = cassandra_record[cassandra_col.to_s]
+            obj.send("#{model_col}=", cassandra_record[cassandra_col.to_s])
           end
           obj[:cassandra_sync_identifier] = key
           obj.coming_from_cassandra = true
