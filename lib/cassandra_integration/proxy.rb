@@ -10,7 +10,7 @@ class CassandraIntegration::Proxy
   def sync
     self.class.connect.insert(@instance.class.cassandra_column_family,
                       @instance.cassandra_sync_identifier,
-                      cassandra_columns_values_hash.merge(CassandraIntegration::Proxy.set_apps_to_update)) unless record_exists?
+                      cassandra_columns_values_hash.merge(CassandraIntegration::Proxy.set_apps_to_update))
   end
 
   def self.set_apps_to_update

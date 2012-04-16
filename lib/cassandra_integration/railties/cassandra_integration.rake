@@ -42,35 +42,63 @@ namespace :cassandra_integration do
         puts '=================================='
         puts "cassandra_sync_identifier: #{key}"
 
-        if model.find_by_cassandra_sync_identifier(key).blank?
-          cassandra_record = proxy.cassandra.get(cf, key)
+        cassandra_record = proxy.cassandra.get(cf, key)
+        searched_record = model.find_by_cassandra_sync_identifier(key)
+
+        if searched_record.blank?
+          puts 'Creating'
           obj = model.new
-
-          model.cassandra_columns_values_hash.each do |cassandra_col, model_col|
-            obj.send("#{model_col}=", cassandra_record[cassandra_col.to_s])
-          end
-          obj[:cassandra_sync_identifier] = key
-          obj.coming_from_cassandra = true
-
-          if obj.save
-            puts 'SUCCESS: Record created!'
-            proxy.cassandra.remove(cf, key, app_id)
-            puts "Removing #{app_id} from #{key} to CF #{cf}."
-          else
-            puts "ERROR: Fail to save record."
-            puts "key: #{key}"
-            puts "model: #{model.name}"
-            puts "CF: #{cf}"
-          end
-
         else
-
-          puts "WARNING: key already exists on DB."
-          proxy.cassandra.remove(cf, key, app_id)
-          puts "Removing #{app_id} from #{key} to CF #{cf}."
-
+          puts 'Updating'
+          obj = searched_record
         end
 
+        obj.class.cassandra_columns_values_hash.each do |cassandra_col, model_col|
+          obj.send("#{model_col}=", cassandra_record[cassandra_col.to_s])
+        end
+        obj[:cassandra_sync_identifier] = key
+        obj.coming_from_cassandra = true
+
+        if obj.save
+          puts 'SUCCESS: Record created!'
+          proxy.cassandra.remove(cf, key, app_id)
+          puts "Removing #{app_id} from #{key} to CF #{cf}."
+        else
+          puts "ERROR: Fail to save record."
+          puts "key: #{key}"
+          puts "model: #{model.name}"
+          puts "CF: #{cf}"
+        end
+
+      end
+
+    end
+
+  end
+
+  task :verify_if_record_exists_on_cassandra_and_update_cassandra_sync_identifier => :environment do
+    Dir.glob(Rails.root.join('app/models/**/*.rb')).each { |path| require path }
+
+    CassandraIntegration::Config.extended_models.uniq.compact.each do |model_name|
+      model = eval(model_name)
+      cf = model.cassandra_column_family
+      app_id = CassandraIntegration::Config.app_id
+
+      proxy = CassandraIntegration::Proxy
+
+      records_to_update = model.find :all, :conditions => {:cassandra_sync_identifier => nil}, :limit => 250
+
+      records_to_update.each do |record|
+        puts "Searching for #{record.cassandra_secundary_index}"
+        search = [{ :column_name => 'secundary_index', :value => record.cassandra_secundary_index, :comparison => '==' }]
+        record_to_update = proxy.cassandra.get_indexed_slices(cf, search, :key_count => 1)
+        unless record_to_update.blank?
+          key = record_to_update.keys.first
+          record.cassandra_sync_identifier = key
+          record.coming_from_cassandra = true
+          puts "Updated - #{record.cassandra_secundary_index} -> #{key}"
+          record.save
+        end
       end
 
     end

@@ -22,7 +22,7 @@ module CassandraIntegration::Base
     end
 
     def replicate
-      CassandraIntegration::Proxy.new(self).sync
+      CassandraIntegration::Proxy.new(self).sync unless self.coming_from_cassandra?
     end
 
     def set_cassandra_sync_identifier
@@ -31,7 +31,7 @@ module CassandraIntegration::Base
     end
 
     def to_cassandra_sync_identifier
-      raise 'Method to_cassandra_sync_identifier is not implemented!'
+      "#{Time.now.strftime('%Y%m%d%H%M%S')}##{rand(1000)}##{CassandraIntegration::Config.app_id}".upcase
     end
 
   end

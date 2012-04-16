@@ -45,10 +45,18 @@ describe CassandraIntegration::Base do
       dummy.replicate
     end
 
-    it 'should call Proxy sync method' do
+    it 'should call Proxy sync method if record is not coming from cassandra' do
       proxy = mock(:proxy)
       proxy.should_receive(:sync)
       CassandraIntegration::Proxy.stub!(:new).and_return(proxy)
+      dummy.replicate
+    end
+
+    it 'should not call Proxy sync method if record is coming from cassandra' do
+      proxy = mock(:proxy)
+      proxy.should_not_receive(:sync)
+      CassandraIntegration::Proxy.stub!(:new).and_return(proxy)
+      dummy.coming_from_cassandra = true
       dummy.replicate
     end
 
@@ -72,8 +80,11 @@ describe CassandraIntegration::Base do
 
   describe '#to_cassandra_sync_identifier' do
 
-    it "should raise 'not implemented'" do
-      expect { dummy.to_cassandra_sync_identifier }.to raise_error('Method to_cassandra_sync_identifier is not implemented!')
+    it "should return default cassandra_sync_identifier" do
+      CassandraIntegration::Config.stub!(:app_id).and_return('app_id')
+      Float.stub!(:rand).and_return(1)
+
+      dummy.to_cassandra_sync_identifier.should match(/#{Time.now.strftime('%Y%m%d%H%M%S')}#\d{,4}#APP_ID/)
     end
 
   end
