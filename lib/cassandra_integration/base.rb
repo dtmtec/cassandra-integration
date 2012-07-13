@@ -5,7 +5,7 @@ module CassandraIntegration::Base
   def self.extended(base)
     base.after_save :replicate
     base.before_validation :set_cassandra_sync_identifier
-    
+
     CassandraIntegration::Config.extended_models=base.name
 
     base.class_eval do
@@ -22,10 +22,12 @@ module CassandraIntegration::Base
     end
 
     def replicate
+      return true if CassandraIntegration::Config.empty?
       CassandraIntegration::Proxy.new(self).sync unless self.coming_from_cassandra?
     end
 
     def set_cassandra_sync_identifier
+      return true if CassandraIntegration::Config.empty?
       raise 'Your model does not have cassandra_sync_identifier column.' unless self.respond_to? :cassandra_sync_identifier
       self.cassandra_sync_identifier = to_cassandra_sync_identifier if self.cassandra_sync_identifier.blank?
     end

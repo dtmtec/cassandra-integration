@@ -1,9 +1,9 @@
-require File.dirname(__FILE__) + '/spec_helper'
+require 'spec_helper'
 require 'dummy_class'
 
 describe CassandraIntegration::Base do
 
-  let(:dummy) {DummyClass.new}
+  let(:dummy) { DummyClass.new }
 
   it 'should let set and get cassandra_column_family' do
     DummyClass.cassandra_column_family = 'cassandra_column_family'
@@ -40,16 +40,38 @@ describe CassandraIntegration::Base do
 
   describe '#replicate' do
 
-    it 'should create a Proxy passing extended class object as argument' do
-      CassandraIntegration::Proxy.should_receive(:new).with(dummy).and_return(mock(:sync => true))
+    it 'should do nothing if config is empty' do
+      CassandraIntegration::Proxy.should_not_receive(:new)
       dummy.replicate
     end
 
-    it 'should call Proxy sync method if record is not coming from cassandra' do
-      proxy = mock(:proxy)
-      proxy.should_receive(:sync)
-      CassandraIntegration::Proxy.stub!(:new).and_return(proxy)
-      dummy.replicate
+    it 'should return true if config is empty' do
+      CassandraIntegration::Proxy.should_not_receive(:new)
+      dummy.replicate.should be true
+    end
+
+    describe 'with config loaded' do
+      before { CassandraIntegration::Config.stub(:empty?).and_return(false) }
+
+      it 'should create a Proxy passing extended class object as argument' do
+        CassandraIntegration::Proxy.should_receive(:new).with(dummy).and_return(mock(:sync => true))
+        dummy.replicate
+      end
+
+      it 'should call Proxy sync method' do
+        proxy = mock(:proxy)
+        proxy.should_receive(:sync)
+        CassandraIntegration::Proxy.stub!(:new).and_return(proxy)
+        dummy.replicate
+      end
+
+      it 'should call Proxy sync method if record is not coming from cassandra' do
+        proxy = mock(:proxy)
+        proxy.should_receive(:sync)
+        CassandraIntegration::Proxy.stub!(:new).and_return(proxy)
+        dummy.replicate
+      end
+
     end
 
     it 'should not call Proxy sync method if record is coming from cassandra' do
@@ -64,16 +86,31 @@ describe CassandraIntegration::Base do
 
   describe '#set_cassandra_sync_identifier' do
 
-    it "should raise exception if cassandra_sync_identifier attribute was not created on extended class" do
-      expect { dummy.set_cassandra_sync_identifier }.to raise_error('Your model does not have cassandra_sync_identifier column.')
+    it 'should do nothing if config is empty' do
+      dummy.should_not_receive(:respond_to?).with(:cassandra_sync_identifier)
+      dummy.should_not_receive(:to_cassandra_sync_identifier)
+      dummy.set_cassandra_sync_identifier
     end
 
-    it "should verify if cassandra_sync_identifier was created on extended class" do
-      class DummyClass
-        attr_accessor :cassandra_sync_identifier
+    it 'should return true if config is empty' do
+      dummy.set_cassandra_sync_identifier.should be true
+    end
+
+    describe 'with config loaded' do
+      before { CassandraIntegration::Config.stub(:empty?).and_return(false) }
+
+      it "should raise exception if cassandra_sync_identifier attribute was not created on extended class" do
+        expect { dummy.set_cassandra_sync_identifier }.to raise_error('Your model does not have cassandra_sync_identifier column.')
       end
-      dummy.stub!(:to_cassandra_sync_identifier).and_return('to_cassandra_sync_identifier')
-      dummy.set_cassandra_sync_identifier.should eq('to_cassandra_sync_identifier')
+
+      it "should verify if cassandra_sync_identifier was created on extended class" do
+        class DummyClass
+          attr_accessor :cassandra_sync_identifier
+        end
+        dummy.stub!(:to_cassandra_sync_identifier).and_return('to_cassandra_sync_identifier')
+        dummy.set_cassandra_sync_identifier.should eq('to_cassandra_sync_identifier')
+      end
+
     end
 
   end
