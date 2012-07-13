@@ -1,6 +1,13 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
 describe CassandraIntegration::Proxy do
+  before(:all) do
+    CassandraIntegration::Config.stub(:keyspace => 'keyspace',
+                                      :host => 'test.com',
+                                      :retries => 3,
+                                      :timeout => 10,
+                                      :connect_timeout => 20)
+  end
 
   describe ".connect" do
     it "should set a Cassandra object connection" do

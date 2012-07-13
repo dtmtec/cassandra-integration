@@ -1,11 +1,13 @@
 require 'yaml'
 class CassandraIntegration::Config
-  
+
   @@extended_models = []
-  
+  @@config = nil
+
   class << self
 
     def configure(yaml)
+      return unless File.exists?(yaml)
       @@config = YAML::load(File.read(yaml))
     end
 
@@ -43,6 +45,10 @@ class CassandraIntegration::Config
 
     def extended_models=(value)
       @@extended_models << value
+    end
+
+    def empty?
+      @@config.nil?
     end
 
   end

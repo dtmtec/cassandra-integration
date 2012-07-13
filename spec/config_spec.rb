@@ -1,7 +1,8 @@
+require 'spec_helper'
 require 'tempfile'
-require File.dirname(__FILE__) + '/spec_helper'
 
 describe CassandraIntegration::Config do
+  before { CassandraIntegration::Config.class_variable_set('@@config', nil) }
 
   it "should let set any models to extended_models" do
     CassandraIntegration::Config.extended_models = 'person'
@@ -13,8 +14,15 @@ describe CassandraIntegration::Config do
 
     it "should parse yaml file" do
       m = mock(:yaml_file)
+      File.stub!(:exists?).and_return(true)
       File.stub!(:read).and_return(m)
       YAML.should_receive(:load).with(m)
+      CassandraIntegration::Config.configure(mock)
+    end
+
+    it 'should be harmless if file does not exist' do
+      File.stub!(:exists?).and_return(false)
+      File.should_not_receive(:read)
       CassandraIntegration::Config.configure(mock)
     end
 
@@ -39,7 +47,7 @@ describe CassandraIntegration::Config do
       file.write("    timeout: 10\n")
       file.write("    connect_timeout: 20\n")
       file.flush
-      
+
       CassandraIntegration::Config.configure(file.path)
       CassandraIntegration::Config.host.should eq('test.com')
       CassandraIntegration::Config.keyspace.should eq('keyspace')
@@ -50,6 +58,17 @@ describe CassandraIntegration::Config do
       CassandraIntegration::Config.connect_timeout.should eq(20)
     end
 
+  end
+
+  describe '.empty?' do
+    it 'returns true if @@config is nil' do
+      CassandraIntegration::Config.should be_empty
+    end
+
+    it 'returns false if @@config is not nil' do
+      CassandraIntegration::Config.class_variable_set('@@config', {})
+      CassandraIntegration::Config.should_not be_empty
+    end
   end
 
 end
